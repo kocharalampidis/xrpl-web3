@@ -9,44 +9,33 @@ const Xrp = () => {
   useEffect(() => {
     // Replace with the fake XRP address
     const address = "rGszcRxv689V8t5akDeynH2inMZa3agfCN";
+    const client = new Client("wss://s.altnet.rippletest.net:51233");
 
-    const api = async () => {
+    // Function to check XRP balance
+    const checkBalance = async () => {
       // Connect to the XRP Ledger Testnet
-      const client = new Client("wss://s.altnet.rippletest.net:51233");
       await client.connect();
+      if (client.isConnected) {
+        console.log("client connected: ", client.isConnected());
+      }
 
-      console.log("client.isConnected", client.isConnected);
-      const response = await client.request({
+      // Get account info
+      const account_info = await client.request({
         command: "account_info",
-        account: "rPT1Sjq2YGrBMTttX4GZHjKu9dyfzbpAYe",
+        account: address,
         ledger_index: "validated",
       });
-      console.log(response);
+
+      console.log(account_info);
+
+      // Acount Balance
+      const balance = account_info.result.account_data.Balance;
+      setXrpBalance(balance / 1e6);
+
+      // Disconnect from the XRP Ledger
+      client.disconnect();
     };
-    api();
-    // Function to check XRP balance
-    // const checkBalance = async () => {
-    //   try {
-    //     // Get account info
-    //     const accountInfo = await client.request("account_info", {
-    //       account: address,
-    //       ledger_index: "validated",
-    //     });
-
-    //     // Extract XRP balance
-    //     const balance = accountInfo.account_data.Balance;
-
-    //     setXrpBalance(balance / 1e6); // Convert from drops to XRP
-    //   } catch (error) {
-    //     console.error("Error:", error);
-    //   } finally {
-    //     // Disconnect from the XRP Ledger
-    //     client.disconnect();
-    //   }
-    // };
-
-    // Run the checkBalance function
-    //checkBalance();
+    checkBalance();
   }, []);
 
   return (
